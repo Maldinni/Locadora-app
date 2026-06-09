@@ -1,0 +1,25 @@
+/* Estilos adicionais mínimos — o grosso vem do Tailwind via CDN. */
+
+/* Esconde elementos enquanto o Alpine.js inicializa. */
+[x-cloak] {
+  display: none !important;
+}
+
+/* Indicador de carregamento do HTMX. */
+.htmx-indicator {
+  opacity: 0;
+  transition: opacity 150ms ease-in;
+}
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  opacity: 1;
+}
+
+/* Scrollbar discreta na sidebar. */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}

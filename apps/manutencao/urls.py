@@ -1,0 +1,12 @@
+from django.urls import path
+
+from . import views
+
+app_name = "manutencao"
+
+urlpatterns = [
+    path("", views.ManutencaoListView.as_view(), name="lista"),
+    path("nova/", views.ManutencaoCreateView.as_view(), name="nova"),
+    path("<int:pk>/editar/", views.ManutencaoUpdateView.as_view(), name="editar"),
+    path("<int:pk>/excluir/", views.ManutencaoDeleteView.as_view(), name="excluir"),
+]
