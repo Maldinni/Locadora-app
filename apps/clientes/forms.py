@@ -7,6 +7,14 @@ from .validators import so_digitos
 
 
 class ClienteForm(TailwindStyledFormMixin, forms.ModelForm):
+    # Aceita CPF com máscara (14 chars); clean_cpf normaliza para 11 dígitos
+    # antes de salvar, então o max_length=11 do model não pode barrar a entrada.
+    cpf = forms.CharField(
+        label="CPF",
+        max_length=14,
+        widget=forms.TextInput(attrs={"placeholder": "000.000.000-00"}),
+    )
+
     class Meta:
         model = Cliente
         fields = [
@@ -26,7 +34,6 @@ class ClienteForm(TailwindStyledFormMixin, forms.ModelForm):
         ]
         widgets = {
             "validade_cnh": forms.DateInput(),
-            "cpf": forms.TextInput(attrs={"placeholder": "000.000.000-00"}),
         }
 
     def clean_cpf(self):
