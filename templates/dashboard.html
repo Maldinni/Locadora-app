@@ -14,7 +14,8 @@
   {% include "partials/stat_card.html" with label="Em manutenção" valor=em_manutencao color="red" icon="wrench" %}
 </div>
 
-<!-- Receita + gráfico -->
+<!-- Receita + gráfico (apenas Administrador — dados financeiros) -->
+{% if usuario_is_admin %}
 <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
   <div class="rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 p-6 text-white shadow">
     <p class="text-sm font-medium text-blue-100">Receita do mês atual</p>
@@ -26,6 +27,7 @@
     <canvas id="chartReceita" height="110"></canvas>
   </div>
 </div>
+{% endif %}
 
 <!-- Alertas -->
 <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -89,18 +91,21 @@
 {% endblock %}
 
 {% block scripts %}
+{% if usuario_is_admin %}
 <script>
-  window.addEventListener('load', () => {
-    if (typeof Chart === 'undefined') return;
-    const ctx = document.getElementById('chartReceita');
-    if (ctx) {
+  (function () {
+    const labels = {{ chart_labels|safe }};
+    const receita = {{ chart_receita|safe }};
+    function draw() {
+      const ctx = document.getElementById('chartReceita');
+      if (!ctx) return;
       new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: {{ chart_labels|safe }},
+          labels: labels,
           datasets: [{
             label: 'Receita (R$)',
-            data: {{ chart_receita|safe }},
+            data: receita,
             backgroundColor: '#2563eb',
             borderRadius: 6,
           }]
@@ -112,6 +117,13 @@
         }
       });
     }
-  });
+    // O Chart.js é carregado via CDN com defer; aguarda ficar disponível
+    // (poll de até ~5s) em vez de desistir num único evento de load.
+    (function waitForChart(tries) {
+      if (typeof Chart !== 'undefined') { draw(); return; }
+      if (tries > 0) setTimeout(() => waitForChart(tries - 1), 100);
+    })(50);
+  })();
 </script>
+{% endif %}
 {% endblock %}
