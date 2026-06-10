@@ -1,0 +1,15 @@
+{% comment %}Card de confirmação. Params: titulo, descricao, cancelar_url{% endcomment %}
+<div class="mx-auto max-w-lg rounded-lg bg-white p-8 shadow">
+  <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
+  </div>
+  <h1 class="text-xl font-semibold text-gray-800">{{ titulo }}</h1>
+  <p class="mt-2 text-sm text-gray-600">{{ descricao }}</p>
+  <p class="mt-1 text-sm text-gray-400">Esta ação não pode ser desfeita.</p>
+
+  <form method="post" class="mt-6 flex justify-end gap-3">
+    {% csrf_token %}
+    <a href="{{ cancelar_url }}" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">Cancelar</a>
+    <button type="submit" class="rounded-md bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700">Excluir</button>
+  </form>
+</div>

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Excluir registro · Manutenção{% endblock %}
+{% block page_title %}Manutenção{% endblock %}
+{% block content %}
+{% include "partials/confirmar_exclusao.html" with titulo="Excluir registro de manutenção" descricao=object cancelar_url='/manutencao/' %}
+{% endblock %}

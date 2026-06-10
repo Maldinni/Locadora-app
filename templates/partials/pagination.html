@@ -1,0 +1,23 @@
+{% load locadora_extras %}
+{% if is_paginated %}
+<nav class="mt-4 flex items-center justify-between border-t border-gray-200 px-2 py-3 text-sm">
+  <p class="text-gray-600">
+    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    <span class="text-gray-400">({{ page_obj.paginator.count }} registro{{ page_obj.paginator.count|pluralize }})</span>
+  </p>
+  <div class="flex gap-1">
+    {% if page_obj.has_previous %}
+      <a href="?{% querystring page=page_obj.previous_page_number %}"
+         class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-700 hover:bg-gray-50">Anterior</a>
+    {% else %}
+      <span class="rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-gray-400">Anterior</span>
+    {% endif %}
+    {% if page_obj.has_next %}
+      <a href="?{% querystring page=page_obj.next_page_number %}"
+         class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-700 hover:bg-gray-50">Próxima</a>
+    {% else %}
+      <span class="rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-gray-400">Próxima</span>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}

@@ -1,0 +1,4 @@
+{% comment %}Alvo de swap do HTMX para o status do veículo.{% endcomment %}
+<span id="status-badge-{{ veiculo.pk }}">
+  {% include "partials/badge.html" with color=veiculo.status_color text=veiculo.get_status_display %}
+</span>

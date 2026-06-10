@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load humanize locadora_extras %}
+{% block title %}{{ veiculo.placa }} · Locadora{% endblock %}
+{% block page_title %}Veículos{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h1 class="text-2xl font-semibold text-gray-800">{{ veiculo.marca }} {{ veiculo.modelo }}</h1>
+    <p class="font-mono text-gray-500">{{ veiculo.placa }} · {{ veiculo.ano }} · {{ veiculo.get_categoria_display }}</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'veiculos:editar' veiculo.pk %}" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Editar</a>
+    <a href="{% url 'veiculos:lista' %}" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">Voltar</a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <!-- Dados -->
+  <div class="space-y-6 lg:col-span-2">
+    <div class="rounded-lg bg-white p-6 shadow">
+      <h2 class="mb-4 text-sm font-semibold text-gray-700">Dados do veículo</h2>
+      <dl class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div><dt class="text-gray-500">Quilometragem</dt><dd class="font-medium text-gray-800">{{ veiculo.quilometragem_atual|intcomma }} km</dd></div>
+        <div><dt class="text-gray-500">Categoria</dt><dd class="font-medium text-gray-800">{{ veiculo.get_categoria_display }}</dd></div>
+        <div><dt class="text-gray-500">Valor de compra</dt><dd class="font-medium text-gray-800">{% if veiculo.valor_compra %}{{ veiculo.valor_compra|brl }}{% else %}—{% endif %}</dd></div>
+        <div><dt class="text-gray-500">Parcela</dt><dd class="font-medium text-gray-800">{% if veiculo.valor_parcela %}{{ veiculo.valor_parcela|brl }} × {{ veiculo.qtd_parcelas|default:"?" }}{% else %}—{% endif %}</dd></div>
+        <div><dt class="text-gray-500">Vencimento IPVA</dt><dd class="font-medium text-gray-800">{{ veiculo.vencimento_ipva|date:"d/m/Y"|default:"—" }}</dd></div>
+        <div><dt class="text-gray-500">Vencimento seguro</dt><dd class="font-medium text-gray-800">{{ veiculo.vencimento_seguro|date:"d/m/Y"|default:"—" }}</dd></div>
+      </dl>
+      {% if veiculo.observacoes %}
+      <p class="mt-4 border-t border-gray-100 pt-3 text-sm text-gray-600">{{ veiculo.observacoes|linebreaksbr }}</p>
+      {% endif %}
+      {% if veiculo.status == 'manutencao' and veiculo.manutencao_motivo %}
+      <div class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <strong>Em manutenção:</strong> {{ veiculo.manutencao_motivo }}
+        {% if veiculo.manutencao_retorno_previsto %}· retorno previsto {{ veiculo.manutencao_retorno_previsto|date:"d/m/Y" }}{% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Histórico de manutenção -->
+    <div class="rounded-lg bg-white p-6 shadow">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-gray-700">Histórico de manutenção</h2>
+        <a href="{% url 'manutencao:nova' %}?veiculo={{ veiculo.pk }}" class="text-sm text-blue-600 hover:underline">+ Registrar</a>
+      </div>
+      {% if manutencoes %}
+      <ul class="divide-y divide-gray-100 text-sm">
+        {% for m in manutencoes %}
+        <li class="flex items-center justify-between py-2.5">
+          <div>
+            <span class="font-medium text-gray-800">{{ m.get_tipo_servico_display }}</span>
+            <span class="text-gray-400">· {{ m.data|date:"d/m/Y" }} · {{ m.km_momento|intcomma }} km</span>
+          </div>
+          <span class="text-gray-600">{{ m.custo|brl }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="py-4 text-sm text-gray-400">Sem registros de manutenção.</p>
+      {% endif %}
+    </div>
+
+    <!-- Histórico de locações -->
+    <div class="rounded-lg bg-white p-6 shadow">
+      <h2 class="mb-4 text-sm font-semibold text-gray-700">Locações recentes</h2>
+      {% if locacoes %}
+      <ul class="divide-y divide-gray-100 text-sm">
+        {% for l in locacoes %}
+        <li class="flex items-center justify-between py-2.5">
+          <a href="{% url 'locacoes:detalhe' l.pk %}" class="text-blue-600 hover:underline">#{{ l.pk }} · {{ l.cliente.nome }}</a>
+          <span class="text-gray-500">{{ l.data_retirada|date:"d/m/Y" }} → {{ l.data_prevista_devolucao|date:"d/m/Y" }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="py-4 text-sm text-gray-400">Sem locações.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="space-y-6">
+    <div class="rounded-lg bg-white p-6 shadow">
+      <h2 class="mb-3 text-sm font-semibold text-gray-700">Status atual</h2>
+      <div class="mb-4">{% include "veiculos/partials/status_badge.html" %}</div>
+
+      {% if veiculo.status == 'alugado' %}
+        <p class="text-xs text-gray-500">O status é controlado pela locação ativa. Registre a devolução para liberar o veículo.</p>
+      {% else %}
+        <form hx-post="{% url 'veiculos:status' veiculo.pk %}"
+              hx-target="#status-badge-{{ veiculo.pk }}" hx-swap="outerHTML"
+              x-data="{ s: '{{ veiculo.status }}' }" class="space-y-3">
+          <select name="status" x-model="s"
+                  class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+            <option value="disponivel">Disponível</option>
+            <option value="manutencao">Em manutenção</option>
+          </select>
+          <div x-show="s === 'manutencao'" x-cloak>
+            <input type="text" name="manutencao_motivo" placeholder="Motivo da manutenção"
+                   class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <button type="submit" class="w-full rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
+            Aplicar status
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

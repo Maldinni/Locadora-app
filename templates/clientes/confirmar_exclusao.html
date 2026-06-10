@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Excluir cliente · Locadora{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+{% block content %}
+{% include "partials/confirmar_exclusao.html" with titulo="Excluir cliente" descricao=object cancelar_url=object.get_absolute_url %}
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load locadora_extras %}
+{% block title %}{{ cliente.nome }} · Locadora{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h1 class="text-2xl font-semibold text-gray-800">{{ cliente.nome }}</h1>
+    <p class="font-mono text-gray-500">{{ cliente.cpf_formatado }}</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'clientes:editar' cliente.pk %}" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Editar</a>
+    <a href="{% url 'clientes:lista' %}" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">Voltar</a>
+  </div>
+</div>
+
+{% if cliente.cnh_vencida %}
+<div class="mb-6 rounded-md bg-red-50 p-3 text-sm text-red-700">
+  ⚠ A CNH deste cliente está vencida ({{ cliente.validade_cnh|date:"d/m/Y" }}). Novos contratos estão bloqueados.
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="rounded-lg bg-white p-6 shadow lg:col-span-1">
+    <h2 class="mb-4 text-sm font-semibold text-gray-700">Dados</h2>
+    <dl class="space-y-3 text-sm">
+      <div><dt class="text-gray-500">CNH</dt><dd class="font-medium text-gray-800">{{ cliente.cnh }} (val. {{ cliente.validade_cnh|date:"d/m/Y" }})</dd></div>
+      <div><dt class="text-gray-500">Telefone</dt><dd class="font-medium text-gray-800">{{ cliente.telefone }}</dd></div>
+      <div><dt class="text-gray-500">E-mail</dt><dd class="font-medium text-gray-800">{{ cliente.email|default:"—" }}</dd></div>
+      <div><dt class="text-gray-500">Endereço</dt><dd class="font-medium text-gray-800">{{ cliente.endereco_completo }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="rounded-lg bg-white p-6 shadow lg:col-span-2">
+    <h2 class="mb-4 text-sm font-semibold text-gray-700">Histórico de locações</h2>
+    {% if locacoes %}
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="text-left text-gray-500">
+        <tr><th class="py-2">#</th><th class="py-2">Veículo</th><th class="py-2">Período</th><th class="py-2">Status</th><th class="py-2 text-right">Valor</th></tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for l in locacoes %}
+        <tr>
+          <td class="py-2"><a href="{% url 'locacoes:detalhe' l.pk %}" class="text-blue-600 hover:underline">#{{ l.pk }}</a></td>
+          <td class="py-2 text-gray-700">{{ l.veiculo.placa }}</td>
+          <td class="py-2 text-gray-500">{{ l.data_retirada|date:"d/m/y" }} → {{ l.data_prevista_devolucao|date:"d/m/y" }}</td>
+          <td class="py-2">{% include "partials/badge.html" with color=l.status_color text=l.get_status_display %}</td>
+          <td class="py-2 text-right text-gray-700">{{ l.valor_total|brl }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="py-4 text-sm text-gray-400">Este cliente ainda não possui locações.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Excluir locação · Locadora{% endblock %}
+{% block page_title %}Locações{% endblock %}
+{% block content %}
+{% include "partials/confirmar_exclusao.html" with titulo="Excluir locação" descricao=object cancelar_url=object.get_absolute_url %}
+{% endblock %}
