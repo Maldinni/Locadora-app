@@ -165,7 +165,19 @@ Locadora-app/
 
 ---
 
-## 8. Stack técnica
+## 8. Testes
+
+A suíte cobre as regras de negócio críticas (validação de CPF/CNH, cálculos de
+locação, troca de status do veículo, relatório financeiro e permissões
+admin/operador):
+
+```powershell
+python manage.py test apps
+```
+
+---
+
+## 9. Stack técnica
 
 - **Backend:** Python 3.11+, Django 5.x
 - **Frontend:** Django Templates + Tailwind CSS (CDN), Alpine.js, HTMX, Chart.js
