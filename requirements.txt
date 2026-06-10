@@ -3,3 +3,5 @@ python-dotenv>=1.0
 Faker>=24.0
 # PostgreSQL driver — usado em produção (production.py)
 psycopg2-binary>=2.9
+# Servir arquivos estáticos em produção (sem web server externo)
+whitenoise>=6.0

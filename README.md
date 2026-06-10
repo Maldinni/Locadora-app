@@ -122,18 +122,27 @@ Outras variáveis (ver `.env.example`):
 ### Rodando em produção (PostgreSQL)
 
 ```powershell
+# Gere uma SECRET_KEY forte:
+python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
+
 # No .env, defina:
 #   DJANGO_SETTINGS_MODULE=locadora.settings.production
-#   SECRET_KEY=<uma-chave-forte>
+#   SECRET_KEY=<a chave gerada acima>
 #   ALLOWED_HOSTS=seu-dominio.com
 #   POSTGRES_DB / POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_HOST / POSTGRES_PORT
 
 python manage.py migrate
-python manage.py collectstatic
+python manage.py collectstatic --noinput
 python manage.py createsuperuser   # cria o primeiro acesso admin
 ```
 
-O módulo de produção já habilita HTTPS redirect, cookies seguros e HSTS.
+Notas do ambiente de produção:
+
+- **SECRET_KEY é obrigatória** — o app recusa subir com a chave padrão de
+  desenvolvimento (levanta `ImproperlyConfigured`).
+- **Arquivos estáticos** são servidos pelo **WhiteNoise** (sem nginx/Apache
+  separado); por isso o `collectstatic` é necessário antes de subir.
+- Já vêm habilitados HTTPS redirect, cookies seguros e HSTS.
 
 ---
 

@@ -1,10 +1,33 @@
 """Configurações de produção: PostgreSQL + DEBUG desligado + segurança."""
+import os
+
+from django.core.exceptions import ImproperlyConfigured
+
 from .base import *  # noqa: F401,F403
-from .base import env, env_list
+from .base import MIDDLEWARE, env, env_list
 
 DEBUG = False
 
+# Em produção a SECRET_KEY DEVE vir do ambiente — nunca o default de dev.
+if not os.environ.get("SECRET_KEY"):
+    raise ImproperlyConfigured(
+        "Defina a variável de ambiente SECRET_KEY em produção (gere um valor "
+        "longo e aleatório)."
+    )
+
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", [])
+
+# WhiteNoise serve os arquivos estáticos sem precisar de nginx/Apache.
+# Logo após o SecurityMiddleware, conforme recomendado.
+MIDDLEWARE = MIDDLEWARE.copy()
+MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}
 
 DATABASES = {
     "default": {
