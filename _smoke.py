@@ -41,7 +41,36 @@ c2.force_login(op)
 r = c2.get("/relatorios/financeiro/")
 print(f"operador -> relatorios: {r.status_code} (esperado 302)")
 
-r = c.post(f"/veiculos/{v}/status/", {"status": "manutencao", "manutencao_motivo": "teste"})
-print(f"HTMX status change: {r.status_code} (esperado 200)")
+r = c.post(
+    f"/veiculos/{v}/status/",
+    {
+        "status": "manutencao",
+        "manutencao_motivo": "Revisão de freios",
+        "manutencao_retorno_previsto": "2030-01-15",
+    },
+)
+veic = Veiculo.objects.get(pk=v)
+ok_manut = (
+    r.status_code == 200
+    and veic.status == "manutencao"
+    and veic.manutencao_motivo == "Revisão de freios"
+    and str(veic.manutencao_retorno_previsto) == "2030-01-15"
+)
+print(f"HTMX -> manutencao (motivo + retorno): {'OK' if ok_manut else '!! FALHOU'}")
+if not ok_manut:
+    falhas += 1
+
+# Volta para disponível: deve limpar motivo e data de retorno.
+r = c.post(f"/veiculos/{v}/status/", {"status": "disponivel"})
+veic.refresh_from_db()
+ok_disp = (
+    r.status_code == 200
+    and veic.status == "disponivel"
+    and veic.manutencao_motivo == ""
+    and veic.manutencao_retorno_previsto is None
+)
+print(f"HTMX -> disponivel (limpa manutencao): {'OK' if ok_disp else '!! FALHOU'}")
+if not ok_disp:
+    falhas += 1
 
 print("TOTAL FALHAS:", falhas)

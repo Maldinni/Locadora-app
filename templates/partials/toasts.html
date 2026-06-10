@@ -1,6 +1,10 @@
-{% comment %}Toasts de feedback (django.contrib.messages){% endcomment %}
-{% if messages %}
-<div class="fixed bottom-4 right-4 z-50 flex w-full max-w-sm flex-col gap-2">
+{% comment %}
+Toasts de feedback (django.contrib.messages).
+Container sempre presente (id="toast-container") para permitir swap OOB do HTMX.
+Param opcional: oob=True — marca o container para hx-swap-oob nas respostas parciais.
+{% endcomment %}
+<div id="toast-container" {% if oob %}hx-swap-oob="true"{% endif %}
+     class="fixed bottom-4 right-4 z-[60] flex w-full max-w-sm flex-col gap-2">
   {% for message in messages %}
   <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
        x-transition.opacity.duration.300ms
@@ -13,4 +17,3 @@
   </div>
   {% endfor %}
 </div>
-{% endif %}

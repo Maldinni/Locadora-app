@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import ProtectedError, Q
 from django.shortcuts import get_object_or_404, render
+from django.utils.dateparse import parse_date
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -97,6 +98,7 @@ class VeiculoStatusView(LoginRequiredMixin, View):
         veiculo = get_object_or_404(Veiculo, pk=pk)
         novo = request.POST.get("status", "")
         motivo = request.POST.get("manutencao_motivo", "").strip()
+        retorno = request.POST.get("manutencao_retorno_previsto", "").strip()
 
         if novo not in Veiculo.Status.values:
             messages.error(request, "Status inválido.")
@@ -105,12 +107,15 @@ class VeiculoStatusView(LoginRequiredMixin, View):
                 request,
                 "Veículo alugado: registre a devolução da locação para liberar.",
             )
+        elif novo == Veiculo.Status.ALUGADO:
+            messages.error(request, "Para marcar como alugado, registre uma locação.")
         elif novo == Veiculo.Status.MANUTENCAO and not motivo:
             messages.error(request, "Informe o motivo da manutenção.")
         else:
             veiculo.status = novo
             if novo == Veiculo.Status.MANUTENCAO:
                 veiculo.manutencao_motivo = motivo
+                veiculo.manutencao_retorno_previsto = parse_date(retorno) if retorno else None
             else:
                 veiculo.manutencao_motivo = ""
                 veiculo.manutencao_retorno_previsto = None
@@ -119,6 +124,6 @@ class VeiculoStatusView(LoginRequiredMixin, View):
 
         return render(
             request,
-            "veiculos/partials/status_badge.html",
+            "veiculos/partials/status_control.html",
             {"veiculo": veiculo, "com_oob_toast": True},
         )

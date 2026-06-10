@@ -55,7 +55,7 @@
         </td>
         <td class="px-4 py-3 text-gray-600">{{ veiculo.get_categoria_display }}</td>
         <td class="px-4 py-3 text-gray-600">{{ veiculo.quilometragem_atual|intcomma }}</td>
-        <td class="px-4 py-3">{% include "partials/badge.html" with color=veiculo.status_color text=veiculo.get_status_display %}</td>
+        <td class="px-4 py-3">{% include "veiculos/partials/status_control.html" %}</td>
         <td class="px-4 py-3">
           <div class="flex justify-end gap-2 text-gray-400">
             <a href="{% url 'veiculos:editar' veiculo.pk %}" title="Editar" class="hover:text-blue-600">
