@@ -36,7 +36,7 @@
           <span class="rev__hero-value">{{ receita_mes|brl }}</span>
         </div>
       </div>
-      <div class="chart-box"><canvas id="chartReceita" height="150"></canvas></div>
+      <div class="chart-box" style="position: relative; height: 300px;"><canvas id="chartReceita"></canvas></div>
     </div>
 
     {% include "partials/fleet_donut.html" %}
@@ -131,7 +131,7 @@
 
 {% block scripts %}
 <script>
-  (function () {
+  document.addEventListener("DOMContentLoaded", function () {
     var statusData = {{ chart_status|safe }};           // [disp, alug, manut]
     {% if usuario_is_admin %}
     var labels = {{ chart_labels|safe }};
@@ -166,6 +166,6 @@
         options: { responsive: true, maintainAspectRatio: false, cutout: "70%", plugins: { legend: { display: false } } }
       });
     });
-  })();
+  });
 </script>
 {% endblock %}
