@@ -3,17 +3,12 @@ Toasts de feedback (django.contrib.messages).
 Container sempre presente (id="toast-container") para permitir swap OOB do HTMX.
 Param opcional: oob=True — marca o container para hx-swap-oob nas respostas parciais.
 {% endcomment %}
-<div id="toast-container" {% if oob %}hx-swap-oob="true"{% endif %}
-     class="fixed bottom-4 right-4 z-[60] flex w-full max-w-sm flex-col gap-2">
+{% load locadora_extras %}
+<div id="toast-container" class="toast-stack" {% if oob %}hx-swap-oob="true"{% endif %}>
   {% for message in messages %}
-  <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
-       x-transition.opacity.duration.300ms
-       class="flex items-start gap-3 rounded-lg border-l-4 bg-white p-4 shadow-lg
-       {% if message.tags == 'success' %}border-green-600{% elif message.tags == 'error' %}border-red-600{% elif message.tags == 'warning' %}border-yellow-500{% else %}border-blue-600{% endif %}">
-    <div class="flex-1 text-sm text-gray-700">{{ message }}</div>
-    <button @click="show = false" class="text-gray-400 hover:text-gray-600">
-      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-    </button>
+  <div class="toast toast--{{ message.tags|default:'info' }}">
+    <div class="toast__body">{{ message }}</div>
+    <button type="button" class="toast__close" aria-label="Fechar">{% icon "x" 16 %}</button>
   </div>
   {% endfor %}
 </div>

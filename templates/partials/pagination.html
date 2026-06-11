@@ -1,22 +1,20 @@
 {% load locadora_extras %}
 {% if is_paginated %}
-<nav class="mt-4 flex items-center justify-between border-t border-gray-200 px-2 py-3 text-sm">
-  <p class="text-gray-600">
+<nav class="pagination">
+  <p>
     Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-    <span class="text-gray-400">({{ page_obj.paginator.count }} registro{{ page_obj.paginator.count|pluralize }})</span>
+    <span class="subtle">· {{ page_obj.paginator.count }} registro{{ page_obj.paginator.count|pluralize }}</span>
   </p>
-  <div class="flex gap-1">
+  <div class="pagination__pages">
     {% if page_obj.has_previous %}
-      <a href="?{% querystring page=page_obj.previous_page_number %}"
-         class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-700 hover:bg-gray-50">Anterior</a>
+      <a class="page-link" href="?{% querystring page=page_obj.previous_page_number %}">Anterior</a>
     {% else %}
-      <span class="rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-gray-400">Anterior</span>
+      <span class="page-link is-disabled">Anterior</span>
     {% endif %}
     {% if page_obj.has_next %}
-      <a href="?{% querystring page=page_obj.next_page_number %}"
-         class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-700 hover:bg-gray-50">Próxima</a>
+      <a class="page-link" href="?{% querystring page=page_obj.next_page_number %}">Próxima</a>
     {% else %}
-      <span class="rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-gray-400">Próxima</span>
+      <span class="page-link is-disabled">Próxima</span>
     {% endif %}
   </div>
 </nav>

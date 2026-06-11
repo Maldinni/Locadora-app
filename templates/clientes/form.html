@@ -1,19 +1,27 @@
 {% extends "base.html" %}
+{% load locadora_extras %}
 {% block title %}{% if object %}Editar{% else %}Novo{% endif %} cliente · Locadora{% endblock %}
 {% block page_title %}Clientes{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
-  <h1 class="text-2xl font-semibold text-gray-800">{% if object %}Editar cliente{% else %}Novo cliente{% endif %}</h1>
-  <a href="{% url 'clientes:lista' %}" class="text-sm text-gray-500 hover:text-gray-700">← Voltar</a>
-</div>
-
-<form method="post" class="rounded-lg bg-white p-6 shadow">
-  {% csrf_token %}
-  {% include "partials/form_fields.html" %}
-  <div class="mt-6 flex justify-end gap-3">
-    <a href="{% url 'clientes:lista' %}" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">Cancelar</a>
-    <button type="submit" class="rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700">Salvar</button>
+<div class="page" style="max-width: 880px;">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">{% if object %}Editar cliente{% else %}Novo cliente{% endif %}</h1>
+      <p class="page-sub">{% if object %}{{ object.nome }}{% else %}Cadastre um novo cliente{% endif %}</p>
+    </div>
+    <div class="page-head__actions">
+      <a href="{% url 'clientes:lista' %}" class="btn btn--ghost btn--md">{% icon "chevron" 15 %} Voltar</a>
+    </div>
   </div>
-</form>
+
+  <form method="post" class="card card--pad">
+    {% csrf_token %}
+    {% include "partials/form_fields.html" %}
+    <div class="form-actions">
+      <a href="{% url 'clientes:lista' %}" class="btn btn--secondary btn--md">Cancelar</a>
+      <button type="submit" class="btn btn--primary btn--md">{% icon "check" 16 %} Salvar</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

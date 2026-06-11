@@ -1,18 +1,16 @@
-{% comment %}Renderiza os campos de um form com layout em grid e erros.{% endcomment %}
+{% comment %}Renderiza os campos de um form em grid, com erros (design system).{% endcomment %}
 {% if form.non_field_errors %}
-<div class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
-  {{ form.non_field_errors|join:" " }}
-</div>
+<div class="form-error-summary">{{ form.non_field_errors|join:" " }}</div>
 {% endif %}
-<div class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+<div class="form-grid">
   {% for field in form %}
-  <div>
-    <label class="mb-1 block text-sm font-medium text-gray-700" for="{{ field.id_for_label }}">
-      {{ field.label }}{% if field.field.required %}<span class="text-red-500"> *</span>{% endif %}
+  <div class="field-block">
+    <label class="field-label" for="{{ field.id_for_label }}">
+      {{ field.label }}{% if field.field.required %}<span class="req"> *</span>{% endif %}
     </label>
     {{ field }}
-    {% if field.help_text %}<p class="mt-1 text-xs text-gray-400">{{ field.help_text }}</p>{% endif %}
-    {% for erro in field.errors %}<p class="mt-1 text-xs text-red-600">{{ erro }}</p>{% endfor %}
+    {% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}
+    {% for erro in field.errors %}<p class="field-error">{{ erro }}</p>{% endfor %}
   </div>
   {% endfor %}
 </div>

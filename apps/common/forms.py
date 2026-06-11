@@ -1,16 +1,13 @@
 """Utilitários compartilhados de formulários."""
 from django import forms
 
-INPUT_CLASSES = (
-    "w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm "
-    "focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none "
-    "disabled:bg-gray-100 disabled:text-gray-500"
-)
-CHECKBOX_CLASSES = "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+# Classes do design system (ver static/css/custom.css).
+INPUT_CLASSES = "form-control"
+CHECKBOX_CLASSES = "form-check"
 
 
 class TailwindStyledFormMixin:
-    """Aplica classes do Tailwind a todos os widgets do formulário.
+    """Aplica as classes do design system a todos os widgets do formulário.
 
     Use herdando antes de forms.Form / forms.ModelForm:
 

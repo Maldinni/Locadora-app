@@ -1,37 +1,45 @@
-{% comment %}Barra superior: toggle mobile + usuário + logout{% endcomment %}
-<header class="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:px-6 lg:px-8">
-  <button type="button" @click="sidebarOpen = true"
-          class="text-gray-500 hover:text-gray-700 lg:hidden">
-    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-    </svg>
-  </button>
-
-  <div class="flex-1 text-sm font-semibold text-gray-700">
-    {% block page_title %}{% endblock %}
+{% comment %}Barra superior: navegação mobile, busca, tema e usuário.{% endcomment %}
+{% load locadora_extras %}
+<header class="topbar">
+  <div class="topbar__l">
+    <button type="button" class="nav-burger" data-nav-toggle aria-label="Abrir menu">{% icon "menu" 20 %}</button>
+    <span class="crumb">Locadora</span>
+    {% icon "chevron" 14 "subtle" %}
+    <span class="crumb crumb--current">{% block page_title %}{% endblock %}</span>
   </div>
 
-  {% if user.is_authenticated %}
-  <div class="flex items-center gap-3" x-data="{ open: false }">
-    <div class="hidden text-right sm:block">
-      <p class="text-sm font-medium text-gray-800">{{ user.get_full_name|default:user.username }}</p>
-      <p class="text-xs text-gray-500">
-        {% if perfil_atual %}{{ perfil_atual.get_role_display }}{% else %}Usuário{% endif %}
-      </p>
-    </div>
-    <div class="relative">
-      <button @click="open = !open" class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
-        {{ user.username|slice:":1"|upper }}
+  <div class="topbar__r">
+    <form class="topbar__search" method="get" action="{% url 'veiculos:lista' %}" role="search">
+      {% icon "search" 16 "input-ico" %}
+      <input class="input" type="text" name="q" placeholder="Buscar veículo por placa ou modelo…" aria-label="Buscar">
+    </form>
+
+    <button type="button" class="theme-toggle" data-theme-toggle title="Alternar tema" aria-label="Alternar tema">
+      <span class="theme-toggle__track">
+        <span class="theme-toggle__thumb">
+          <span class="theme-icon theme-icon--sun">{% icon "sun" 14 %}</span>
+          <span class="theme-icon theme-icon--moon">{% icon "moon" 14 %}</span>
+        </span>
+      </span>
+    </button>
+
+    {% if user.is_authenticated %}
+    <div class="user">
+      <button type="button" class="user__btn" data-user-toggle aria-haspopup="true">
+        <span class="user__meta">
+          <span class="user__name">{{ user.get_full_name|default:user.username }}</span>
+          <span class="user__role">{% if perfil_atual %}{{ perfil_atual.get_role_display }}{% else %}Usuário{% endif %}</span>
+        </span>
+        <span class="user__avatar">{{ user.username|slice:":1"|upper }}</span>
       </button>
-      <div x-show="open" x-cloak @click.outside="open = false"
-           class="absolute right-0 mt-2 w-44 rounded-md border border-gray-200 bg-white py-1 shadow-lg">
-        <a href="{% url 'accounts:password_change' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Trocar senha</a>
+      <div class="user__menu">
+        <a href="{% url 'accounts:password_change' %}">{% icon "lock" 16 %} Trocar senha</a>
         <form method="post" action="{% url 'accounts:logout' %}">
           {% csrf_token %}
-          <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100">Sair</button>
+          <button type="submit" class="danger">{% icon "logout" 16 %} Sair</button>
         </form>
       </div>
     </div>
+    {% endif %}
   </div>
-  {% endif %}
 </header>

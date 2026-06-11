@@ -65,12 +65,17 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             registro = v.proxima_revisao()
             if registro and registro.proxima_revisao_km:
                 km_restante = registro.proxima_revisao_km - v.quilometragem_atual
+                pendente = km_restante <= 0
+                # % de "consumo" do intervalo de revisão (base 15.000 km) para a
+                # barra de progresso no dashboard.
+                pct = 100 if pendente else max(6, min(100, round((1 - km_restante / 15000) * 100)))
                 revisoes.append(
                     {
                         "veiculo": v,
                         "proxima_km": registro.proxima_revisao_km,
                         "km_restante": km_restante,
-                        "pendente": km_restante <= 0,
+                        "pendente": pendente,
+                        "pct": pct,
                     }
                 )
         revisoes.sort(key=lambda x: x["km_restante"])

@@ -1,66 +1,68 @@
 {% extends "base.html" %}
+{% load locadora_extras %}
 {% block title %}Clientes · Locadora{% endblock %}
 {% block page_title %}Clientes{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-  <h1 class="text-2xl font-semibold text-gray-800">Clientes</h1>
-  <a href="{% url 'clientes:novo' %}" class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-    Novo cliente
-  </a>
-</div>
-
-<form method="get" class="mb-4 flex flex-wrap items-end gap-3 rounded-lg bg-white p-4 shadow-sm">
-  <div class="flex-1 min-w-[200px]">
-    <label class="mb-1 block text-xs font-medium text-gray-500">Buscar (nome ou CPF)</label>
-    <input type="text" name="q" value="{{ busca }}" placeholder="Nome ou CPF"
-           class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Clientes</h1>
+      <p class="page-sub">{{ page_obj.paginator.count }} cliente{{ page_obj.paginator.count|pluralize }} cadastrado{{ page_obj.paginator.count|pluralize }}</p>
+    </div>
+    <div class="page-head__actions">
+      <a href="{% url 'clientes:novo' %}" class="btn btn--primary btn--md">{% icon "plus" 17 %} Novo cliente</a>
+    </div>
   </div>
-  <button type="submit" class="rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">Buscar</button>
-  {% if busca %}<a href="{% url 'clientes:lista' %}" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">Limpar</a>{% endif %}
-</form>
 
-<div class="overflow-hidden rounded-lg bg-white shadow">
-  <table class="min-w-full divide-y divide-gray-200 text-sm">
-    <thead class="bg-gray-100 text-left text-gray-700">
-      <tr>
-        <th class="px-4 py-3 font-semibold">Nome</th>
-        <th class="px-4 py-3 font-semibold">CPF</th>
-        <th class="px-4 py-3 font-semibold">CNH</th>
-        <th class="px-4 py-3 font-semibold">Telefone</th>
-        <th class="px-4 py-3 text-right font-semibold">Ações</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      {% for cliente in clientes %}
-      <tr class="odd:bg-white even:bg-gray-50 hover:bg-blue-50/50">
-        <td class="px-4 py-3">
-          <a href="{% url 'clientes:detalhe' cliente.pk %}" class="font-medium text-blue-600 hover:underline">{{ cliente.nome }}</a>
-        </td>
-        <td class="px-4 py-3 font-mono text-gray-600">{{ cliente.cpf_formatado }}</td>
-        <td class="px-4 py-3 text-gray-600">
-          {{ cliente.cnh }}
-          {% if cliente.cnh_vencida %}{% include "partials/badge.html" with color="red" text="CNH vencida" %}{% endif %}
-        </td>
-        <td class="px-4 py-3 text-gray-600">{{ cliente.telefone }}</td>
-        <td class="px-4 py-3">
-          <div class="flex justify-end gap-2 text-gray-400">
-            <a href="{% url 'clientes:editar' cliente.pk %}" title="Editar" class="hover:text-blue-600">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" /></svg>
-            </a>
-            <a href="{% url 'clientes:excluir' cliente.pk %}" title="Excluir" class="hover:text-red-600">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
-            </a>
-          </div>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5" class="px-4 py-10 text-center text-gray-400">Nenhum cliente encontrado.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <form method="get" class="toolbar">
+    <div class="field grow">
+      <span class="field__label">Buscar</span>
+      <div class="input-wrap">
+        {% icon "search" 17 "input-ico" %}
+        <input type="text" name="q" value="{{ busca }}" class="input" placeholder="Nome ou CPF…">
+      </div>
+    </div>
+    <button type="submit" class="btn btn--secondary btn--md">Buscar</button>
+    {% if busca %}<a href="{% url 'clientes:lista' %}" class="btn btn--ghost btn--md">Limpar</a>{% endif %}
+  </form>
+
+  <div class="card" style="padding: 0;">
+    <div class="table-scroll">
+      <table class="dt">
+        <thead>
+          <tr><th>Cliente</th><th>CPF</th><th>CNH</th><th>Telefone</th><th class="ta-right">Ações</th></tr>
+        </thead>
+        <tbody>
+          {% for cliente in clientes %}
+          <tr>
+            <td>
+              <a class="cell-user" href="{% url 'clientes:detalhe' cliente.pk %}">
+                <span class="avatar">{{ cliente.nome|slice:":1"|upper }}</span>
+                <span class="cell-user__name">{{ cliente.nome }}</span>
+              </a>
+            </td>
+            <td class="mono">{{ cliente.cpf_formatado }}</td>
+            <td>
+              <span class="mono">{{ cliente.cnh }}</span>
+              {% if cliente.cnh_vencida %}{% include "partials/badge.html" with tone="danger" text="CNH vencida" %}{% endif %}
+            </td>
+            <td class="mono muted">{{ cliente.telefone }}</td>
+            <td class="ta-right">
+              <span class="row-actions">
+                <a class="iconbtn" href="{% url 'clientes:editar' cliente.pk %}" title="Editar">{% icon "edit" 16 %}</a>
+                <a class="iconbtn iconbtn--danger" href="{% url 'clientes:excluir' cliente.pk %}" title="Excluir">{% icon "trash" 16 %}</a>
+              </span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5"><div class="empty"><div class="empty__icon">{% icon "users" 22 %}</div><p class="empty__title">Nenhum cliente encontrado</p><p class="empty__sub">Verifique o nome ou CPF informado.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% include "partials/pagination.html" %}
 </div>
-
-{% include "partials/pagination.html" %}
 {% endblock %}

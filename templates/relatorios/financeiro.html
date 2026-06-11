@@ -4,68 +4,83 @@
 {% block page_title %}Relatórios{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-  <h1 class="text-2xl font-semibold text-gray-800">Relatório financeiro</h1>
-  <a href="{% url 'relatorios:financeiro_csv' %}?inicio={{ inicio|date:'Y-m-d' }}&fim={{ fim|date:'Y-m-d' }}"
-     class="inline-flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
-    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-    Exportar CSV
-  </a>
-</div>
-
-<form method="get" class="mb-6 flex flex-wrap items-end gap-3 rounded-lg bg-white p-4 shadow-sm">
-  <div>
-    <label class="mb-1 block text-xs font-medium text-gray-500">Início</label>
-    <input type="date" name="inicio" value="{{ inicio|date:'Y-m-d' }}" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Relatório financeiro</h1>
+      <p class="page-sub">{{ inicio|date:"d/m/Y" }} a {{ fim|date:"d/m/Y" }}</p>
+    </div>
+    <div class="page-head__actions">
+      <a href="{% url 'relatorios:financeiro_csv' %}?inicio={{ inicio|date:'Y-m-d' }}&fim={{ fim|date:'Y-m-d' }}" class="btn btn--secondary btn--md">{% icon "download" 16 %} Exportar CSV</a>
+    </div>
   </div>
-  <div>
-    <label class="mb-1 block text-xs font-medium text-gray-500">Fim</label>
-    <input type="date" name="fim" value="{{ fim|date:'Y-m-d' }}" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
-  </div>
-  <button type="submit" class="rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">Filtrar período</button>
-</form>
 
-<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-  <div class="rounded-lg bg-white p-5 shadow"><p class="text-sm text-gray-500">Receita</p><p class="mt-2 text-2xl font-bold text-green-600">{{ relatorio.receita|brl }}</p></div>
-  <div class="rounded-lg bg-white p-5 shadow"><p class="text-sm text-gray-500">Custos de manutenção</p><p class="mt-2 text-2xl font-bold text-red-600">{{ relatorio.custo_manutencao|brl }}</p></div>
-  <div class="rounded-lg bg-white p-5 shadow"><p class="text-sm text-gray-500">Parcelas ({{ relatorio.meses_no_periodo }} mês/meses)</p><p class="mt-2 text-2xl font-bold text-orange-500">{{ relatorio.total_parcelas|brl }}</p></div>
-  <div class="rounded-lg bg-white p-5 shadow"><p class="text-sm text-gray-500">Lucro estimado</p><p class="mt-2 text-2xl font-bold {% if relatorio.lucro_estimado >= 0 %}text-blue-700{% else %}text-red-600{% endif %}">{{ relatorio.lucro_estimado|brl }}</p></div>
-</div>
+  <form method="get" class="toolbar">
+    <div class="field">
+      <span class="field__label">Início</span>
+      <input type="date" name="inicio" value="{{ inicio|date:'Y-m-d' }}" class="form-control">
+    </div>
+    <div class="field">
+      <span class="field__label">Fim</span>
+      <input type="date" name="fim" value="{{ fim|date:'Y-m-d' }}" class="form-control">
+    </div>
+    <button type="submit" class="btn btn--primary btn--md">Filtrar período</button>
+  </form>
 
-<div class="overflow-hidden rounded-lg bg-white shadow">
-  <div class="border-b border-gray-100 px-4 py-3 text-sm font-semibold text-gray-700">
-    Contratos no período ({{ inicio|date:"d/m/Y" }} a {{ fim|date:"d/m/Y" }})
+  <div class="grid grid-4">
+    <div class="card card--pad stat">
+      <div class="stat__top"><div class="stat__icon stat__icon--success">{% icon "coins" 20 %}</div></div>
+      <div class="stat__value" style="color: var(--success);">{{ relatorio.receita|brl }}</div>
+      <div class="stat__label">Receita</div>
+    </div>
+    <div class="card card--pad stat">
+      <div class="stat__top"><div class="stat__icon stat__icon--danger">{% icon "wrench" 20 %}</div></div>
+      <div class="stat__value" style="color: var(--danger);">{{ relatorio.custo_manutencao|brl }}</div>
+      <div class="stat__label">Custos de manutenção</div>
+    </div>
+    <div class="card card--pad stat">
+      <div class="stat__top"><div class="stat__icon stat__icon--warning">{% icon "receipt" 20 %}</div></div>
+      <div class="stat__value" style="color: var(--warning);">{{ relatorio.total_parcelas|brl }}</div>
+      <div class="stat__label">Parcelas ({{ relatorio.meses_no_periodo }} mês/meses)</div>
+    </div>
+    <div class="card card--pad stat">
+      <div class="stat__top"><div class="stat__icon stat__icon--primary">{% icon "trend" 20 %}</div></div>
+      <div class="stat__value" style="color: {% if relatorio.lucro_estimado >= 0 %}var(--primary){% else %}var(--danger){% endif %};">{{ relatorio.lucro_estimado|brl }}</div>
+      <div class="stat__label">Lucro estimado</div>
+    </div>
   </div>
-  <table class="min-w-full divide-y divide-gray-200 text-sm">
-    <thead class="bg-gray-100 text-left text-gray-700">
-      <tr>
-        <th class="px-4 py-3 font-semibold">#</th>
-        <th class="px-4 py-3 font-semibold">Cliente</th>
-        <th class="px-4 py-3 font-semibold">Veículo</th>
-        <th class="px-4 py-3 font-semibold">Retirada</th>
-        <th class="px-4 py-3 font-semibold">Status</th>
-        <th class="px-4 py-3 text-right font-semibold">Valor cobrado</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      {% for loc in relatorio.locacoes %}
-      <tr class="odd:bg-white even:bg-gray-50">
-        <td class="px-4 py-3"><a href="{% url 'locacoes:detalhe' loc.pk %}" class="text-blue-600 hover:underline">#{{ loc.pk }}</a></td>
-        <td class="px-4 py-3 text-gray-700">{{ loc.cliente.nome }}</td>
-        <td class="px-4 py-3 text-gray-600">{{ loc.veiculo.placa }}</td>
-        <td class="px-4 py-3 text-gray-500">{{ loc.data_retirada|date:"d/m/Y" }}</td>
-        <td class="px-4 py-3">{% include "partials/badge.html" with color=loc.status_color text=loc.get_status_display %}</td>
-        <td class="px-4 py-3 text-right text-gray-700">{{ loc.valor_total|brl }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="6" class="px-4 py-10 text-center text-gray-400">Nenhum contrato no período.</td></tr>
-      {% endfor %}
-    </tbody>
-    {% if relatorio.locacoes %}
-    <tfoot class="bg-gray-50 font-semibold text-gray-800">
-      <tr><td colspan="5" class="px-4 py-3 text-right">Total de receita</td><td class="px-4 py-3 text-right text-green-700">{{ relatorio.receita|brl }}</td></tr>
-    </tfoot>
-    {% endif %}
-  </table>
+
+  <div class="card" style="padding: 0;">
+    <h3 class="sec-title" style="padding: 20px 22px 14px;">Contratos no período</h3>
+    <div class="table-scroll">
+      <table class="dt">
+        <thead>
+          <tr><th>Contrato</th><th>Cliente</th><th>Veículo</th><th>Retirada</th><th>Status</th><th class="ta-right">Valor cobrado</th></tr>
+        </thead>
+        <tbody>
+          {% for loc in relatorio.locacoes %}
+          <tr>
+            <td><a class="link mono" href="{% url 'locacoes:detalhe' loc.pk %}">#{{ loc.pk }}</a></td>
+            <td>{{ loc.cliente.nome }}</td>
+            <td><span class="plate">{{ loc.veiculo.placa }}</span></td>
+            <td class="mono subtle">{{ loc.data_retirada|date:"d/m/Y" }}</td>
+            <td>{% include "partials/badge.html" with color=loc.status_color text=loc.get_status_display %}</td>
+            <td class="ta-right cell-money mono">{{ loc.valor_total|brl }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6"><div class="empty"><div class="empty__icon">{% icon "receipt" 22 %}</div><p class="empty__title">Nenhum contrato no período</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+        {% if relatorio.locacoes %}
+        <tfoot>
+          <tr>
+            <td colspan="5" class="ta-right" style="font-weight: 600;">Total de receita</td>
+            <td class="ta-right cell-money mono" style="color: var(--success);">{{ relatorio.receita|brl }}</td>
+          </tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
 </div>
 {% endblock %}
