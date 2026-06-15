@@ -23,6 +23,7 @@ def _dias_entre(inicio, fim):
 
 class Locacao(TimeStampedModel):
     class Status(models.TextChoices):
+        PENDENTE = "pendente", "Aguardando contrato"
         ATIVO = "ativo", "Ativo"
         ENCERRADO = "encerrado", "Encerrado"
 
@@ -54,8 +55,14 @@ class Locacao(TimeStampedModel):
     observacoes = models.TextField("observações", blank=True)
 
     status = models.CharField(
-        "status", max_length=20, choices=Status.choices, default=Status.ATIVO, db_index=True
+        "status", max_length=20, choices=Status.choices, default=Status.PENDENTE, db_index=True
     )
+
+    # Contrato gerado automaticamente ao abrir a locação.
+    contrato = models.FileField(
+        "contrato", upload_to="contratos/", null=True, blank=True
+    )
+    contrato_gerado_em = models.DateTimeField("contrato gerado em", null=True, blank=True)
 
     # Preenchidos na devolução
     data_devolucao_real = models.DateTimeField("devolução real", null=True, blank=True)
@@ -122,4 +129,6 @@ class Locacao(TimeStampedModel):
     def status_color(self):
         if self.status == self.Status.ENCERRADO:
             return "gray"
+        if self.status == self.Status.PENDENTE:
+            return "yellow"
         return "red" if self.atrasada else "blue"

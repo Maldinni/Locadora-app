@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load locadora_extras %}
+{% block title %}Configurações · Locadora{% endblock %}
+{% block page_title %}Configurações{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width: 880px;">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Configurações</h1>
+      <p class="page-sub">Dados do locador usados na geração automática de contratos.</p>
+    </div>
+  </div>
+
+  <form method="post" class="card card--pad">
+    {% csrf_token %}
+    {% include "partials/form_fields.html" %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary btn--md">{% icon "check" 16 %} Salvar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,8 +1,10 @@
 """Testes de locações: cálculos, validações do formulário e regras de status."""
+import tempfile
+import zipfile
 from datetime import timedelta
 from decimal import Decimal
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -13,10 +15,14 @@ from apps.common.test_utils import (
     make_locacao,
     make_veiculo,
 )
+from apps.configuracao.models import Configuracao
 from apps.veiculos.models import Veiculo
 
 from .forms import LocacaoForm
 from .models import Locacao
+from .services import render_contrato
+
+_TMP_MEDIA = tempfile.mkdtemp()
 
 
 class LocacaoCalculosTest(TestCase):
@@ -107,6 +113,7 @@ class LocacaoFormTest(TestCase):
         self.assertIn("km_saida", form.errors)
 
 
+@override_settings(MEDIA_ROOT=_TMP_MEDIA)
 class LocacaoViewSideEffectsTest(TestCase):
     def setUp(self):
         self.client.force_login(make_admin())
@@ -128,12 +135,17 @@ class LocacaoViewSideEffectsTest(TestCase):
         dados.update(over)
         return dados
 
-    def test_criar_locacao_marca_veiculo_alugado(self):
+    def test_criar_locacao_gera_contrato_e_libera(self):
         resp = self.client.post(reverse("locacoes:nova"), self._dados())
         self.assertEqual(resp.status_code, 302)
         self.veiculo.refresh_from_db()
         self.assertEqual(self.veiculo.status, Veiculo.Status.ALUGADO)
         self.assertEqual(Locacao.objects.count(), 1)
+        loc = Locacao.objects.get()
+        # Contrato gerado → locação liberada (ativa) com arquivo e data.
+        self.assertEqual(loc.status, Locacao.Status.ATIVO)
+        self.assertTrue(loc.contrato)
+        self.assertIsNotNone(loc.contrato_gerado_em)
 
     def test_devolucao_libera_veiculo_e_atualiza_km(self):
         loc = make_locacao(cliente=self.cliente, veiculo=self.veiculo)
@@ -165,3 +177,55 @@ class LocacaoViewSideEffectsTest(TestCase):
         self.veiculo.refresh_from_db()
         self.assertEqual(self.veiculo.status, Veiculo.Status.DISPONIVEL)
         self.assertFalse(Locacao.objects.filter(pk=loc.pk).exists())
+
+
+@override_settings(MEDIA_ROOT=_TMP_MEDIA)
+class ContratoTest(TestCase):
+    def setUp(self):
+        cfg = Configuracao.get_solo()
+        cfg.nome_locador = "Auto Locadora LTDA"
+        cfg.cpf_locador = "12.345.678/0001-90"
+        cfg.endereco_locador = "Av. Central, 100, Teresina-PI"
+        cfg.save()
+        self.cliente = make_cliente(nome="Joana Teste")
+        self.veiculo = make_veiculo()
+
+    def _texto_contrato(self, locacao):
+        arquivo = render_contrato(locacao)
+        xml = zipfile.ZipFile(arquivo).read("word/document.xml").decode("utf-8")
+        import re
+
+        return re.sub("<[^>]+>", "", xml)
+
+    def test_render_preenche_dados_do_locador_e_locatario(self):
+        loc = make_locacao(
+            cliente=self.cliente, veiculo=self.veiculo, valor_diaria=Decimal("100.00")
+        )
+        texto = self._texto_contrato(loc)
+        self.assertIn("Auto Locadora LTDA", texto)         # locador (config)
+        self.assertIn("Joana Teste", texto)                # locatário (cliente)
+        self.assertIn(self.veiculo.placa, texto)           # veículo
+        self.assertIn("700,00", texto)                     # diária 100 * 7 (semanal)
+        # Dados sensíveis do modelo original não devem reaparecer.
+        self.assertNotIn("Lucas de Paula", texto)
+
+    def test_contrato_embute_logo(self):
+        loc = make_locacao(cliente=self.cliente, veiculo=self.veiculo)
+        arquivo = render_contrato(loc)
+        nomes = zipfile.ZipFile(arquivo).namelist()
+        self.assertTrue(any("word/media/" in n for n in nomes))
+
+    def test_gerar_contrato_view_libera_locacao_pendente(self):
+        self.client.force_login(make_admin())
+        loc = make_locacao(
+            cliente=self.cliente,
+            veiculo=self.veiculo,
+            status=Locacao.Status.PENDENTE,
+        )
+        resp = self.client.post(reverse("locacoes:gerar_contrato", args=[loc.pk]))
+        self.assertEqual(resp.status_code, 302)
+        loc.refresh_from_db()
+        self.veiculo.refresh_from_db()
+        self.assertEqual(loc.status, Locacao.Status.ATIVO)
+        self.assertTrue(loc.contrato)
+        self.assertEqual(self.veiculo.status, Veiculo.Status.ALUGADO)

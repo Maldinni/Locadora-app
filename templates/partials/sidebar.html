@@ -1,9 +1,9 @@
 {% comment %}Sidebar — navegação principal (design system){% endcomment %}
-{% load locadora_extras %}
+{% load locadora_extras static %}
 {% with app=request.resolver_match.app_name url=request.resolver_match.url_name %}
 <aside class="sidebar">
   <a href="{% url 'dashboard' %}" class="brand">
-    <span class="brand__mark">{% icon "car" 22 %}</span>
+    <span class="brand__mark"><img src="{% static 'img/logo.jpg' %}" alt="Logo" class="brand__logo"></span>
     <span class="brand__txt">
       <span class="brand__name">Locadora</span>
       <span class="brand__sub">Gestão de frota</span>
@@ -45,6 +45,10 @@
     <a href="{% url 'relatorios:financeiro' %}" class="nav__item {% if app == 'relatorios' %}is-active{% endif %}">
       <span class="nav__ico">{% icon "chart" 19 %}</span>
       <span class="nav__label">Relatórios</span>
+    </a>
+    <a href="{% url 'configuracao:editar' %}" class="nav__item {% if app == 'configuracao' %}is-active{% endif %}">
+      <span class="nav__ico">{% icon "settings" 19 %}</span>
+      <span class="nav__label">Configurações</span>
     </a>
     {% endif %}
   </nav>

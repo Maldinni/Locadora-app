@@ -59,6 +59,7 @@ LOCAL_APPS = [
     "apps.manutencao",
     "apps.multas",
     "apps.relatorios",
+    "apps.configuracao",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
@@ -130,6 +131,10 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Arquivos de mídia (uploads e contratos gerados).
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --------------------------------------------------------------------------
@@ -157,3 +162,8 @@ MESSAGE_TAGS = {
 # --------------------------------------------------------------------------
 # Valor padrão da multa por dia de atraso na devolução (R$).
 MULTA_DIARIA_ATRASO = env("MULTA_DIARIA_ATRASO", "150.00")
+
+# Caminho do template .docx usado para gerar o contrato de locação.
+CONTRATO_TEMPLATE = BASE_DIR / "apps" / "locacoes" / "contrato_modelo" / "contrato_template.docx"
+# Logo exibida no app e inserida no cabeçalho do contrato.
+LOGO_PATH = BASE_DIR / "static" / "img" / "logo.jpg"

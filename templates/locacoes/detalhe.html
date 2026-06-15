@@ -11,6 +11,9 @@
       {% include "partials/badge.html" with color=locacao.status_color text=locacao.get_status_display %}
     </div>
     <div class="page-head__actions">
+      {% if locacao.contrato %}
+      <a href="{{ locacao.contrato.url }}" class="btn btn--secondary btn--md">{% icon "contract" 16 %} Baixar contrato</a>
+      {% endif %}
       {% if locacao.status == 'ativo' %}
       <a href="{% url 'locacoes:devolucao' locacao.pk %}" class="btn btn--success btn--md">{% icon "checkCircle" 16 %} Registrar devolução</a>
       <a href="{% url 'locacoes:editar' locacao.pk %}" class="btn btn--primary btn--md">{% icon "edit" 16 %} Editar</a>
@@ -18,6 +21,19 @@
       <a href="{% url 'locacoes:lista' %}" class="btn btn--secondary btn--md">Voltar</a>
     </div>
   </div>
+
+  {% if locacao.status == 'pendente' %}
+  <div class="alert alert--warning">
+    {% icon "clock" 18 %}
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;">
+      <span>Esta locação está <strong>aguardando contrato</strong>. Gere o contrato para liberá-la e marcar o veículo como alugado.</span>
+      <form method="post" action="{% url 'locacoes:gerar_contrato' locacao.pk %}" style="margin: 0;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn--primary btn--sm">{% icon "contract" 15 %} Gerar contrato e liberar</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
 
   {% if locacao.atrasada %}
   <div class="alert alert--danger">{% icon "clock" 18 %}<div>Locação em atraso desde {{ locacao.data_prevista_devolucao|date:"d/m/Y H:i" }}.</div></div>
@@ -33,6 +49,9 @@
         <div><dt>Devolução prevista</dt><dd class="mono">{{ locacao.data_prevista_devolucao|date:"d/m/Y H:i" }}</dd></div>
         <div><dt>Km de saída</dt><dd class="mono">{{ locacao.km_saida|intcomma }}</dd></div>
         <div><dt>Forma de pagamento</dt><dd>{{ locacao.get_forma_pagamento_display }}</dd></div>
+        {% if locacao.contrato_gerado_em %}
+        <div><dt>Contrato gerado em</dt><dd class="mono">{{ locacao.contrato_gerado_em|date:"d/m/Y H:i" }}</dd></div>
+        {% endif %}
         {% if locacao.status == 'encerrado' %}
         <div><dt>Devolução real</dt><dd class="mono">{{ locacao.data_devolucao_real|date:"d/m/Y H:i" }}</dd></div>
         <div><dt>Km de retorno</dt><dd class="mono">{{ locacao.km_retorno|intcomma }}</dd></div>

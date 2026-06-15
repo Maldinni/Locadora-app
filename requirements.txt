@@ -5,3 +5,7 @@ Faker>=24.0
 psycopg2-binary>=2.9
 # Servir arquivos estáticos em produção (sem web server externo)
 whitenoise>=6.0
+# Geração do contrato de locação em .docx (template Jinja sobre Word)
+docxtpl>=0.16
+# Valor por extenso (em português) no contrato
+num2words>=0.5

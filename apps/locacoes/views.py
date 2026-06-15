@@ -1,9 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.views import View
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -16,6 +17,7 @@ from apps.veiculos.models import Veiculo
 
 from .forms import DevolucaoForm, LocacaoForm
 from .models import Locacao
+from .services import gerar_contrato
 
 
 class LocacaoListView(LoginRequiredMixin, ListView):
@@ -44,6 +46,15 @@ class LocacaoDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "locacao"
 
 
+def _liberar_locacao(locacao):
+    """Marca a locação como ativa (liberada) e o veículo como alugado."""
+    locacao.status = Locacao.Status.ATIVO
+    locacao.save(update_fields=["status", "updated_at"])
+    veiculo = locacao.veiculo
+    veiculo.status = Veiculo.Status.ALUGADO
+    veiculo.save(update_fields=["status", "updated_at"])
+
+
 class LocacaoCreateView(LoginRequiredMixin, CreateView):
     model = Locacao
     form_class = LocacaoForm
@@ -51,14 +62,47 @@ class LocacaoCreateView(LoginRequiredMixin, CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
-        form.instance.status = Locacao.Status.ATIVO
+        # Nasce aguardando contrato; só é liberada quando o contrato é gerado.
+        form.instance.status = Locacao.Status.PENDENTE
         response = super().form_valid(form)
-        # Regra: ao abrir contrato, o veículo passa a "alugado".
-        veiculo = self.object.veiculo
-        veiculo.status = Veiculo.Status.ALUGADO
-        veiculo.save(update_fields=["status", "updated_at"])
-        messages.success(self.request, "Locação registrada. Veículo marcado como alugado.")
+        try:
+            gerar_contrato(self.object)
+        except Exception as exc:  # noqa: BLE001
+            messages.warning(
+                self.request,
+                "Locação registrada como 'Aguardando contrato', mas o contrato não "
+                f"pôde ser gerado ({exc}). Use 'Gerar contrato' na tela da locação.",
+            )
+            return response
+        # Contrato gerado → libera a locação e marca o veículo como alugado.
+        _liberar_locacao(self.object)
+        messages.success(
+            self.request,
+            "Locação registrada e liberada. Contrato gerado e veículo marcado como alugado.",
+        )
         return response
+
+
+class GerarContratoView(LoginRequiredMixin, View):
+    """(Re)gera o contrato de uma locação e a libera, se ainda estiver pendente."""
+
+    @transaction.atomic
+    def post(self, request, pk):
+        locacao = get_object_or_404(Locacao, pk=pk)
+        if locacao.status == Locacao.Status.ENCERRADO:
+            messages.info(request, "Locação encerrada — contrato não pode ser gerado.")
+            return redirect(locacao.get_absolute_url())
+        try:
+            gerar_contrato(locacao)
+        except Exception as exc:  # noqa: BLE001
+            messages.error(request, f"Não foi possível gerar o contrato: {exc}")
+            return redirect(locacao.get_absolute_url())
+        if locacao.status == Locacao.Status.PENDENTE:
+            _liberar_locacao(locacao)
+            messages.success(request, "Contrato gerado. Locação liberada e veículo alugado.")
+        else:
+            messages.success(request, "Contrato gerado novamente.")
+        return redirect(locacao.get_absolute_url())
 
 
 class LocacaoUpdateView(LoginRequiredMixin, UpdateView):
