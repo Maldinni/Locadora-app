@@ -56,6 +56,10 @@
             <td class="ta-right cell-money mono">{{ locacao.valor_total|brl }}</td>
             <td class="ta-right">
               <span class="row-actions">
+                <a class="iconbtn" href="{% url 'locacoes:detalhe' locacao.pk %}" title="Abrir locação">{% icon "eye" 16 %}</a>
+                {% if locacao.contrato %}
+                <a class="iconbtn" href="{% url 'locacoes:baixar_contrato' locacao.pk %}" title="Baixar contrato">{% icon "download" 16 %}</a>
+                {% endif %}
                 {% if locacao.status == 'ativo' %}
                 <a class="iconbtn iconbtn--success" href="{% url 'locacoes:devolucao' locacao.pk %}" title="Registrar devolução">{% icon "checkCircle" 16 %}</a>
                 <a class="iconbtn" href="{% url 'locacoes:editar' locacao.pk %}" title="Editar">{% icon "edit" 16 %}</a>
