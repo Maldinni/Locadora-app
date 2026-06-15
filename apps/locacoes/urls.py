@@ -11,5 +11,6 @@ urlpatterns = [
     path("<int:pk>/editar/", views.LocacaoUpdateView.as_view(), name="editar"),
     path("<int:pk>/devolucao/", views.LocacaoDevolucaoView.as_view(), name="devolucao"),
     path("<int:pk>/contrato/", views.GerarContratoView.as_view(), name="gerar_contrato"),
+    path("<int:pk>/contrato/baixar/", views.BaixarContratoView.as_view(), name="baixar_contrato"),
     path("<int:pk>/excluir/", views.LocacaoDeleteView.as_view(), name="excluir"),
 ]

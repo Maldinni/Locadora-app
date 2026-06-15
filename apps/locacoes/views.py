@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -103,6 +104,24 @@ class GerarContratoView(LoginRequiredMixin, View):
         else:
             messages.success(request, "Contrato gerado novamente.")
         return redirect(locacao.get_absolute_url())
+
+
+class BaixarContratoView(LoginRequiredMixin, View):
+    """Faz o download do contrato pelo Django (protegido por login).
+
+    Evita expor os arquivos de ``media/`` publicamente — o contrato tem dados
+    pessoais do cliente (CPF, endereço) — e dispensa o mapeamento de /media/.
+    """
+
+    def get(self, request, pk):
+        locacao = get_object_or_404(Locacao, pk=pk)
+        if not locacao.contrato:
+            raise Http404("Contrato ainda não gerado para esta locação.")
+        return FileResponse(
+            locacao.contrato.open("rb"),
+            as_attachment=True,
+            filename=f"contrato_locacao_{locacao.pk}.docx",
+        )
 
 
 class LocacaoUpdateView(LoginRequiredMixin, UpdateView):

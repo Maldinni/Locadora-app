@@ -12,7 +12,7 @@
     </div>
     <div class="page-head__actions">
       {% if locacao.contrato %}
-      <a href="{{ locacao.contrato.url }}" class="btn btn--secondary btn--md">{% icon "contract" 16 %} Baixar contrato</a>
+      <a href="{% url 'locacoes:baixar_contrato' locacao.pk %}" class="btn btn--secondary btn--md">{% icon "contract" 16 %} Baixar contrato</a>
       {% endif %}
       {% if locacao.status == 'ativo' %}
       <a href="{% url 'locacoes:devolucao' locacao.pk %}" class="btn btn--success btn--md">{% icon "checkCircle" 16 %} Registrar devolução</a>
