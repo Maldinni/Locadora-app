@@ -1,0 +1,23 @@
+# Serviço systemd do Gunicorn (Loca Fácil).
+# Copie para /etc/systemd/system/locafacil.service e ajuste o usuário/caminhos.
+#
+#   sudo cp deploy/gunicorn.service /etc/systemd/system/locafacil.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now locafacil
+#
+[Unit]
+Description=Loca Facil (Gunicorn)
+After=network.target
+
+[Service]
+# Troque "locafacil" pelo usuário que você criou no VPS.
+User=locafacil
+Group=www-data
+WorkingDirectory=/home/locafacil/Locadora-app
+# O .env é lido pelo wsgi.py (python-dotenv) a partir do WorkingDirectory.
+ExecStart=/home/locafacil/Locadora-app/.venv/bin/gunicorn locadora.wsgi:application -c gunicorn.conf.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

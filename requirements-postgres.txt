@@ -1,0 +1,4 @@
+# Dependências extras para rodar com PostgreSQL (opcional).
+# Instale junto do requirements.txt quando DB_ENGINE=postgres:
+#     pip install -r requirements.txt -r requirements-postgres.txt
+psycopg2-binary>=2.9

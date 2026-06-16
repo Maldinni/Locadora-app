@@ -1,11 +1,14 @@
 Django>=5.0,<5.2
 python-dotenv>=1.0
 Faker>=24.0
-# PostgreSQL driver — usado em produção (production.py)
-psycopg2-binary>=2.9
 # Servir arquivos estáticos em produção (sem web server externo)
 whitenoise>=6.0
+# Servidor de aplicação WSGI usado em produção (VPS)
+gunicorn>=21.2
 # Geração do contrato de locação em .docx (template Jinja sobre Word)
 docxtpl>=0.16
 # Valor por extenso (em português) no contrato
 num2words>=0.5
+
+# PostgreSQL é OPCIONAL. O padrão em produção é SQLite (leve, p/ VPS pequeno).
+# Para usar Postgres: pip install -r requirements-postgres.txt e DB_ENGINE=postgres.
