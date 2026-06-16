@@ -41,11 +41,7 @@
     </a>
 
     {% if usuario_is_admin %}
-    <div class="nav__group-label">Análise</div>
-    <a href="{% url 'relatorios:financeiro' %}" class="nav__item {% if app == 'relatorios' %}is-active{% endif %}">
-      <span class="nav__ico">{% icon "chart" 19 %}</span>
-      <span class="nav__label">Relatórios</span>
-    </a>
+    <div class="nav__group-label">Administração</div>
     <a href="{% url 'configuracao:editar' %}" class="nav__item {% if app == 'configuracao' %}is-active{% endif %}">
       <span class="nav__ico">{% icon "settings" 19 %}</span>
       <span class="nav__label">Configurações</span>

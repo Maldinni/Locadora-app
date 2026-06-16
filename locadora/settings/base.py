@@ -58,7 +58,6 @@ LOCAL_APPS = [
     "apps.locacoes",
     "apps.manutencao",
     "apps.multas",
-    "apps.relatorios",
     "apps.configuracao",
 ]
 

@@ -1,4 +1,4 @@
-"""Testes de contas: papel de acesso e visibilidade do financeiro no dashboard."""
+"""Testes de contas: papel de acesso e proteção do dashboard."""
 from django.contrib.auth.models import AnonymousUser, User
 from django.test import TestCase
 from django.urls import reverse
@@ -37,15 +37,16 @@ class DashboardAcessoTest(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/conta/login/", resp.url)
 
-    def test_operador_nao_ve_receita(self):
-        self.client.force_login(make_operador())
+    def test_dashboard_sem_financeiro(self):
+        # O dashboard não exibe mais informações financeiras (receita/gráficos),
+        # nem para o admin.
+        self.client.force_login(make_admin())
         resp = self.client.get(reverse("dashboard"))
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, "Receita do mês atual")
         self.assertNotContains(resp, "Receita dos últimos 6 meses")
 
-    def test_admin_ve_receita(self):
-        self.client.force_login(make_admin())
+    def test_operador_acessa_dashboard(self):
+        self.client.force_login(make_operador())
         resp = self.client.get(reverse("dashboard"))
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Receita do mês atual")

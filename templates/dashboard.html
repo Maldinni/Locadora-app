@@ -20,34 +20,6 @@
     {% include "partials/stat_card.html" with label="Em manutenção" valor=em_manutencao tone="warning" icon="wrench" %}
   </div>
 
-  {% if usuario_is_admin %}
-  <!-- Receita + composição da frota -->
-  <div class="grid grid-rev">
-    <div class="card rev">
-      <div class="sec-head">
-        <div class="sec-head__l">
-          <div>
-            <h3 class="sec-title">Receita dos últimos 6 meses</h3>
-            <p class="sec-sub">Contratos com retirada no mês</p>
-          </div>
-        </div>
-        <div class="rev__hero">
-          <span class="rev__hero-label">Receita do mês atual</span>
-          <span class="rev__hero-value">{{ receita_mes|brl }}</span>
-        </div>
-      </div>
-      <div class="chart-box" style="position: relative; height: 300px;"><canvas id="chartReceita"></canvas></div>
-    </div>
-
-    {% include "partials/fleet_donut.html" %}
-  </div>
-  {% else %}
-  <div class="grid grid-rev">
-    {% include "partials/fleet_donut.html" %}
-    <div></div>
-  </div>
-  {% endif %}
-
   <!-- Alertas -->
   <div class="grid grid-2">
     <!-- Vencimentos -->
@@ -127,45 +99,4 @@
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    var statusData = {{ chart_status|safe }};           // [disp, alug, manut]
-    {% if usuario_is_admin %}
-    var labels = {{ chart_labels|safe }};
-    var receita = {{ chart_receita|safe }};
-    Locadora.chart(function (cssVar) {
-      return new Chart(document.getElementById("chartReceita"), {
-        type: "bar",
-        data: { labels: labels, datasets: [{ data: receita, backgroundColor: cssVar("--primary"), borderRadius: 6, maxBarThickness: 46 }] },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return "R$ " + c.parsed.y.toLocaleString("pt-BR"); } } } },
-          scales: {
-            y: { beginAtZero: true, grid: { color: cssVar("--border-soft") }, ticks: { color: cssVar("--text-subtle") } },
-            x: { grid: { display: false }, ticks: { color: cssVar("--text-subtle") } }
-          }
-        }
-      });
-    });
-    {% endif %}
-
-    Locadora.chart(function (cssVar) {
-      return new Chart(document.getElementById("chartFrota"), {
-        type: "doughnut",
-        data: {
-          labels: ["Disponíveis", "Alugados", "Em manutenção"],
-          datasets: [{
-            data: statusData,
-            backgroundColor: [cssVar("--success"), cssVar("--info"), cssVar("--warning")],
-            borderColor: cssVar("--surface"), borderWidth: 3, hoverOffset: 4
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: "70%", plugins: { legend: { display: false } } }
-      });
-    });
-  });
-</script>
 {% endblock %}

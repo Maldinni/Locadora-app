@@ -2,10 +2,10 @@
 
 MVP de um sistema web para locadoras de veículos de pequeno porte (frota de 5 a 30
 carros). Substitui o controle em planilhas por uma gestão operacional com
-dashboard em tempo real, cadastro de veículos/clientes, contratos de locação,
-manutenção, multas e relatório financeiro.
+dashboard operacional, cadastro de veículos/clientes, contratos de locação,
+manutenção e multas.
 
-Construído com **Django 5 + Templates + Tailwind/Alpine/HTMX/Chart.js** (tudo via
+Construído com **Django 5 + Templates + Tailwind/Alpine/HTMX** (tudo via
 CDN, sem build step de frontend).
 
 ---
@@ -86,9 +86,8 @@ Os dados usam seed fixo (`42`), então a geração é reproduzível.
 
 - **Autenticação** — login/logout, troca de senha, dois perfis (Admin/Operador),
   todas as rotas protegidas.
-- **Dashboard** — cards de frota (total/disponíveis/alugados/manutenção), receita do
-  mês, próximos vencimentos de IPVA/seguro, revisões preventivas pendentes e gráficos
-  (receita dos últimos 6 meses + distribuição por status).
+- **Dashboard** — cards de frota (total/disponíveis/alugados/manutenção), próximos
+  vencimentos de IPVA/seguro e revisões preventivas pendentes.
 - **Veículos** — CRUD com filtro por status, busca por placa/modelo e troca rápida de
   status via HTMX (pede motivo ao marcar manutenção).
 - **Clientes** — CRUD com validação de CPF (dígitos verificadores), histórico de
@@ -98,8 +97,6 @@ Os dados usam seed fixo (`42`), então a geração é reproduzível.
 - **Manutenção** — histórico cronológico por veículo, com próxima revisão por km/data.
 - **Multas** — controle com status (pendente/pago/contestado), vinculadas ao cliente
   quando há contrato associado.
-- **Relatório financeiro** (somente Admin) — filtro por período, receita, custos de
-  manutenção, lucro estimado e **exportação CSV**.
 
 ---
 
@@ -166,8 +163,7 @@ Locadora-app/
 │   ├── clientes/
 │   ├── locacoes/
 │   ├── manutencao/
-│   ├── multas/
-│   └── relatorios/
+│   └── multas/
 ├── templates/                # base.html, partials/ e templates por app
 └── static/css/custom.css
 ```
@@ -177,8 +173,7 @@ Locadora-app/
 ## 8. Testes
 
 A suíte cobre as regras de negócio críticas (validação de CPF/CNH, cálculos de
-locação, troca de status do veículo, relatório financeiro e permissões
-admin/operador):
+locação, troca de status do veículo e permissões admin/operador):
 
 ```powershell
 python manage.py test apps
@@ -189,6 +184,6 @@ python manage.py test apps
 ## 9. Stack técnica
 
 - **Backend:** Python 3.11+, Django 5.x
-- **Frontend:** Django Templates + Tailwind CSS (CDN), Alpine.js, HTMX, Chart.js
+- **Frontend:** Django Templates + Tailwind CSS (CDN), Alpine.js, HTMX
 - **Banco:** SQLite (dev) / PostgreSQL (prod)
 - **Dados fake:** Faker (pt_BR)

@@ -25,7 +25,6 @@ urls = [
     "/locacoes/", f"/locacoes/{loc}/", "/locacoes/nova/", f"/locacoes/{loc_ativa}/devolucao/",
     "/manutencao/", "/manutencao/nova/",
     "/multas/", "/multas/nova/",
-    "/relatorios/financeiro/", "/relatorios/financeiro/csv/",
     "/conta/senha/",
 ]
 falhas = 0
@@ -34,12 +33,6 @@ for u in urls:
     if r.status_code != 200:
         falhas += 1
     print(f"{'OK ' if r.status_code == 200 else '!! '}{r.status_code}  {u}")
-
-op = User.objects.get(username="operador@locadora.com")
-c2 = Client()
-c2.force_login(op)
-r = c2.get("/relatorios/financeiro/")
-print(f"operador -> relatorios: {r.status_code} (esperado 302)")
 
 r = c.post(
     f"/veiculos/{v}/status/",
