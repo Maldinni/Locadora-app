@@ -1,8 +1,9 @@
 # Deploy no VPS da Locaweb (512 MB) — Loca Fácil
 
-Guia para subir o sistema em produção num VPS pequeno (Ubuntu), usando
-**SQLite + Gunicorn + Nginx + WhiteNoise**. Pensado para a versão enxuta
-(branch `remover-bi-relatorios`).
+Guia para subir o sistema em produção num VPS pequeno (Debian ou Ubuntu),
+usando **SQLite + Gunicorn + Nginx + WhiteNoise**. Pensado para a versão enxuta
+(branch `remover-bi-relatorios`). Os comandos são iguais nos dois sistemas (ambos
+usam `apt` + `systemd`).
 
 > Substitua ao longo do guia:
 > - `SEU_IP` → o IP do seu VPS
@@ -13,9 +14,11 @@ Guia para subir o sistema em produção num VPS pequeno (Ubuntu), usando
 ## Parte 1 — Criar o VPS na Locaweb
 
 1. No painel do VPS, em **"Escolha um Sistema Operacional"**, escolha a aba
-   **Sistema Operacional** (NÃO "Aplicações") → **Ubuntu** (de preferência a
-   versão **LTS** mais recente, ex.: 22.04 ou 24.04).
+   **Sistema Operacional** (NÃO "Aplicações") → **Debian** (versão estável mais
+   recente, ex.: Debian 12). Ubuntu LTS também serve, com os mesmos comandos.
    - A aba "Aplicações" (WordPress, Node.js…) não serve para Django.
+   - Evite CentOS/Alma/Rocky: usam outro gerenciador de pacotes e exigiriam
+     comandos diferentes dos deste guia.
 2. Conclua a criação e anote: **IP do servidor**, **usuário** (`root`) e **senha**.
 
 ---
@@ -36,7 +39,10 @@ apt update && apt upgrade -y
 
 ### 2.2 Criar um usuário (não usar root para a aplicação)
 
+No Debian mínimo o `sudo` pode não estar instalado — o primeiro comando resolve:
+
 ```bash
+apt install -y sudo         # no Ubuntu já vem; no Debian pode faltar
 adduser locafacil           # defina uma senha
 usermod -aG sudo locafacil
 ```
