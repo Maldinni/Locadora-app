@@ -25,8 +25,9 @@
           <div><dt>Categoria</dt><dd>{{ veiculo.get_categoria_display }}</dd></div>
           <div><dt>Valor de compra</dt><dd>{% if veiculo.valor_compra %}{{ veiculo.valor_compra|brl }}{% else %}—{% endif %}</dd></div>
           <div><dt>Parcela</dt><dd>{% if veiculo.valor_parcela %}{{ veiculo.valor_parcela|brl }} × {{ veiculo.qtd_parcelas|default:"?" }}{% else %}—{% endif %}</dd></div>
+          <div><dt>Parcelas</dt><dd>{% if veiculo.qtd_parcelas %}{{ veiculo.parcelas_pagas|default:0 }} pagas · {{ veiculo.parcelas_faltantes }} faltantes{% else %}—{% endif %}</dd></div>
+          <div><dt>Rastreador</dt><dd>{% if veiculo.tem_rastreador %}Sim{% if veiculo.valor_rastreador %} · {{ veiculo.valor_rastreador|brl }}/mês{% endif %}{% else %}Não{% endif %}</dd></div>
           <div><dt>Vencimento IPVA</dt><dd>{{ veiculo.vencimento_ipva|date:"d/m/Y"|default:"—" }}</dd></div>
-          <div><dt>Vencimento seguro</dt><dd>{{ veiculo.vencimento_seguro|date:"d/m/Y"|default:"—" }}</dd></div>
         </dl>
         {% if veiculo.observacoes %}
         <p class="muted" style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-soft); font-size: 13.5px;">{{ veiculo.observacoes|linebreaksbr }}</p>

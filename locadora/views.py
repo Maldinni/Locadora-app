@@ -22,13 +22,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx["alugados"] = veiculos.filter(status=Veiculo.Status.ALUGADO).count()
         ctx["em_manutencao"] = veiculos.filter(status=Veiculo.Status.MANUTENCAO).count()
 
-        # ---- Próximos 5 vencimentos (IPVA ou seguro, próximos 30 dias) ----
+        # ---- Próximos 5 vencimentos de IPVA (próximos 30 dias) ----
         limite = hoje + timedelta(days=30)
         vencimentos = []
         for v in veiculos:
             for tipo, data_venc in (
                 ("IPVA", v.vencimento_ipva),
-                ("Seguro", v.vencimento_seguro),
             ):
                 if data_venc and hoje <= data_venc <= limite:
                     vencimentos.append(

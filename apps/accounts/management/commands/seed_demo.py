@@ -107,8 +107,10 @@ class Command(BaseCommand):
                 valor_compra=Decimal(random.randint(60, 160) * 1000),
                 valor_parcela=Decimal(random.randint(900, 2200)),
                 qtd_parcelas=48,
+                parcelas_pagas=random.randint(0, 48),
+                tem_rastreador=random.choice([True, False]),
+                valor_rastreador=Decimal(random.randint(40, 90)),
                 vencimento_ipva=timezone.localdate() + timedelta(days=random.randint(-10, 60)),
-                vencimento_seguro=timezone.localdate() + timedelta(days=random.randint(5, 120)),
             )
             veiculos.append(v)
 

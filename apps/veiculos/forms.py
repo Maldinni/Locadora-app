@@ -19,15 +19,16 @@ class VeiculoForm(TailwindStyledFormMixin, forms.ModelForm):
             "valor_compra",
             "valor_parcela",
             "qtd_parcelas",
+            "parcelas_pagas",
+            "tem_rastreador",
+            "valor_rastreador",
             "vencimento_ipva",
-            "vencimento_seguro",
             "observacoes",
             "manutencao_motivo",
             "manutencao_retorno_previsto",
         ]
         widgets = {
             "vencimento_ipva": forms.DateInput(),
-            "vencimento_seguro": forms.DateInput(),
             "manutencao_retorno_previsto": forms.DateInput(),
             "observacoes": forms.Textarea(attrs={"rows": 3}),
         }
@@ -43,5 +44,13 @@ class VeiculoForm(TailwindStyledFormMixin, forms.ModelForm):
             self.add_error(
                 "manutencao_motivo",
                 "Informe o motivo ao colocar o veículo em manutenção.",
+            )
+
+        qtd = cleaned.get("qtd_parcelas")
+        pagas = cleaned.get("parcelas_pagas")
+        if qtd is not None and pagas is not None and pagas > qtd:
+            self.add_error(
+                "parcelas_pagas",
+                "As parcelas pagas não podem exceder a quantidade total de parcelas.",
             )
         return cleaned

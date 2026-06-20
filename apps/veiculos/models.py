@@ -18,6 +18,7 @@ class Veiculo(TimeStampedModel):
         DISPONIVEL = "disponivel", "Disponível"
         ALUGADO = "alugado", "Alugado"
         MANUTENCAO = "manutencao", "Em manutenção"
+        VENDIDO = "vendido", "Vendido"
 
     class Categoria(models.TextChoices):
         BASICO = "basico", "Básico"
@@ -63,8 +64,14 @@ class Veiculo(TimeStampedModel):
     qtd_parcelas = models.PositiveIntegerField(
         "qtd. de parcelas", null=True, blank=True
     )
+    parcelas_pagas = models.PositiveIntegerField(
+        "parcelas já pagas", null=True, blank=True
+    )
+    tem_rastreador = models.BooleanField("possui rastreador do sistema", default=False)
+    valor_rastreador = models.DecimalField(
+        "valor mensal do rastreador", max_digits=10, decimal_places=2, null=True, blank=True
+    )
     vencimento_ipva = models.DateField("vencimento do IPVA", null=True, blank=True)
-    vencimento_seguro = models.DateField("vencimento do seguro", null=True, blank=True)
     observacoes = models.TextField("observações", blank=True)
 
     # Manutenção em andamento
@@ -96,12 +103,20 @@ class Veiculo(TimeStampedModel):
         return self.status == self.Status.DISPONIVEL
 
     @property
+    def parcelas_faltantes(self):
+        """Parcelas restantes do financiamento, ou None se não houver dados."""
+        if self.qtd_parcelas is None:
+            return None
+        return max(self.qtd_parcelas - (self.parcelas_pagas or 0), 0)
+
+    @property
     def status_color(self):
         """Token de cor (Tailwind) para badges de status."""
         return {
             self.Status.DISPONIVEL: "green",
             self.Status.ALUGADO: "blue",
             self.Status.MANUTENCAO: "red",
+            self.Status.VENDIDO: "gray",
         }.get(self.status, "gray")
 
     # ------------------------------------------------------------------

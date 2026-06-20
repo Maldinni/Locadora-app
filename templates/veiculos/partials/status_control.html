@@ -20,6 +20,7 @@ Params: veiculo · com_oob_toast (opcional, usado na resposta HTMX).
         <select name="status" class="form-control" data-status-select>
           <option value="disponivel" {% if veiculo.status == 'disponivel' %}selected{% endif %}>Disponível</option>
           <option value="manutencao" {% if veiculo.status == 'manutencao' %}selected{% endif %}>Em manutenção</option>
+          <option value="vendido" {% if veiculo.status == 'vendido' %}selected{% endif %}>Vendido</option>
         </select>
         <div class="field" data-manut-fields {% if veiculo.status != 'manutencao' %}style="display: none;"{% endif %}>
           <input type="text" name="manutencao_motivo" class="form-control"
