@@ -20,6 +20,40 @@
     {% include "partials/stat_card.html" with label="Em manutenção" valor=em_manutencao tone="warning" icon="wrench" %}
   </div>
 
+  {% if usuario_is_admin %}
+  <!-- Balanço do mês: Receita × Gasto -->
+  <div class="card card--pad">
+    <div class="sec-head">
+      <div class="sec-head__l">
+        <div>
+          <h3 class="sec-title">Balanço do mês</h3>
+          <p class="sec-sub">Receita das locações × gasto (consórcio, manutenção e rastreador)</p>
+        </div>
+      </div>
+    </div>
+    <div class="bal-grid">
+      <div class="bal-box">
+        <span class="bal-box__label">Receita</span>
+        <span class="bal-box__val" style="color: var(--success);">{{ balanco.receita|brl }}</span>
+      </div>
+      <div class="bal-box">
+        <span class="bal-box__label">Gasto</span>
+        <span class="bal-box__val" style="color: var(--danger);">{{ balanco.gasto|brl }}</span>
+      </div>
+      <div class="bal-box">
+        <span class="bal-box__label">Saldo do mês</span>
+        <span class="bal-box__val" style="color: {% if balanco.saldo < 0 %}var(--danger){% else %}var(--text){% endif %};">{{ balanco.saldo|brl }}</span>
+      </div>
+    </div>
+    <div class="bal-comp">
+      <span class="bal-comp__title">Composição do gasto</span>
+      <span class="bal-comp__item"><span class="legend__dot" style="background: var(--info);"></span>Consórcio · {{ balanco.consorcio|brl }}</span>
+      <span class="bal-comp__item"><span class="legend__dot" style="background: var(--warning);"></span>Manutenção · {{ balanco.manutencao|brl }}</span>
+      <span class="bal-comp__item"><span class="legend__dot" style="background: var(--success);"></span>Rastreador · {{ balanco.rastreador|brl }}</span>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Alertas -->
   <div class="grid grid-2">
     <!-- Vencimentos -->

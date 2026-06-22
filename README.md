@@ -87,7 +87,8 @@ Os dados usam seed fixo (`42`), então a geração é reproduzível.
 - **Autenticação** — login/logout, troca de senha, dois perfis (Admin/Operador),
   todas as rotas protegidas.
 - **Dashboard** — cards de frota (total/disponíveis/alugados/manutenção), próximos
-  vencimentos de IPVA/seguro e revisões preventivas pendentes.
+  vencimentos de IPVA/seguro, revisões preventivas pendentes e, para o Admin, um
+  balanço simples do mês (receita × gasto: consórcio, manutenção e rastreador).
 - **Veículos** — CRUD com filtro por status, busca por placa/modelo e troca rápida de
   status via HTMX (pede motivo ao marcar manutenção).
 - **Clientes** — CRUD com validação de CPF (dígitos verificadores), histórico de

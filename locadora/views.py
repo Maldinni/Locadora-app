@@ -1,10 +1,14 @@
 """View do dashboard (página inicial)."""
 from datetime import timedelta
+from decimal import Decimal
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from django.views.generic import TemplateView
 
+from apps.accounts.mixins import is_admin
+from apps.locacoes.models import Locacao
+from apps.manutencao.models import Manutencao
 from apps.veiculos.models import Veiculo
 
 
@@ -62,5 +66,50 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 )
         revisoes.sort(key=lambda x: x["km_restante"])
         ctx["revisoes"] = revisoes[:3]
+
+        # ---- Balanço mensal (somente admin) ----
+        # Receita × Gasto do mês corrente. O gasto é composto pelos custos que o
+        # sistema já registra: consórcio/prestação (parcela mensal dos veículos
+        # ainda em pagamento), manutenção (custos do mês) e rastreador (mensal).
+        if is_admin(self.request.user):
+            inicio_mes = hoje.replace(day=1)
+
+            # Custos recorrentes mensais (fixos): consórcio + rastreador.
+            ativos = veiculos.exclude(status=Veiculo.Status.VENDIDO)
+            consorcio_mes = sum(
+                (v.valor_parcela for v in ativos
+                 if v.valor_parcela and (v.parcelas_faltantes is None or v.parcelas_faltantes > 0)),
+                Decimal("0.00"),
+            )
+            rastreador_mes = sum(
+                (v.valor_rastreador for v in ativos if v.tem_rastreador and v.valor_rastreador),
+                Decimal("0.00"),
+            )
+
+            # Manutenção do mês corrente (variável).
+            manutencao_mes = sum(
+                (m.custo for m in Manutencao.objects.filter(
+                    data__gte=inicio_mes, data__lte=hoje
+                )),
+                Decimal("0.00"),
+            )
+
+            # Receita do mês: contratos com retirada no mês.
+            receita_mes = sum(
+                (loc.valor_total for loc in Locacao.objects.filter(
+                    data_retirada__date__gte=inicio_mes, data_retirada__date__lte=hoje
+                )),
+                Decimal("0.00"),
+            )
+
+            gasto_mes = consorcio_mes + rastreador_mes + manutencao_mes
+            ctx["balanco"] = {
+                "receita": receita_mes,
+                "gasto": gasto_mes,
+                "saldo": receita_mes - gasto_mes,
+                "consorcio": consorcio_mes,
+                "manutencao": manutencao_mes,
+                "rastreador": rastreador_mes,
+            }
 
         return ctx
